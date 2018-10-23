@@ -2,13 +2,12 @@
 #define _MAP_H_
 
 #include <stdlib.h>
+#include "types.h"
 
 #define POINT_TYPE_FREE 0
 #define POINT_TYPE_SOLID 1
 
 #define MAX_POINT_TYPE_NUMBER 1
-
-typedef unsigned int uint;
 
 struct map_point {
     int type;
@@ -20,9 +19,10 @@ struct map {
     struct map_point* points; // must be an array of length width * height
 };
 
-typedef struct map * PMAP;
-typedef struct map_point * PMAP_POINT;
+typedef struct map * p_map;
+typedef struct map_point * p_map_point;
 
-int change_point(struct map* pmap, uint x, uint y, int type);
+p_map create_map(uint width, uint height, p_map_point initial);
+int set_point(struct map* pmap, uint x, uint y, int type);
 
 #endif
