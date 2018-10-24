@@ -9,35 +9,23 @@ void send_message(char* msg, size_t len) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) return 1;
+    if (argc < 3) return 1;
 
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
     printf("socket descriptor: %d\n", sock);
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    addr.sin_port = htons(atoi(argv[1]));
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(atoi(argv[2]));
 
     bind(sock, (struct sockaddr*)&addr, sizeof(addr));
 
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    servaddr.sin_port = htons(10900);
+    servaddr.sin_addr.s_addr = inet_addr(argv[1]);
+    servaddr.sin_port = htons(10910);
 
-    char msg[100];
-
-    sleep(3);
-
-    struct timespec tm;
-    tm.tv_sec = 0;
-    tm.tv_nsec = 100000L;
-
-    for (int i = 0; i < 10000; i++) {
-        sprintf(msg, "%s ~> %d", argv[1], i);
-        send_message(msg, sizeof(msg));
-        //nanosleep(&tm, NULL);
-    }
+    int servsock = connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
 
     close(sock);
 
