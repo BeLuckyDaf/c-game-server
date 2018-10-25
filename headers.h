@@ -9,6 +9,12 @@
 #include <arpa/inet.h>
 #include <sys/errno.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <time.h>
+
+void error(char* msg, int code) {
+    printf("<error>: %s\n", msg);
+    exit(code);
+}
 
 #endif

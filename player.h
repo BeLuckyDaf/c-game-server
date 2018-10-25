@@ -15,6 +15,7 @@ struct player_data {
 /** stores player data and client address
  *  for internal purposes */
 struct client_data {
+    int sockfd;
     struct sockaddr_in addr;
     struct player_data data;
 };
