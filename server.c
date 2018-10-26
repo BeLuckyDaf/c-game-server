@@ -1,10 +1,18 @@
 #include "server.h"
 
-void *establish_client_connection() {
+void *establish_client_connection(void* cldata) {
+    p_client_data data = (p_client_data)cldata;
+    p_message message = create_message(SMSG_VERIFY_CONNECTION, 0, NULL);
+    send_message(data->sockfd, message);
+    
+    message = receive_message(data->sockfd);
+    // verify somehow
+
     return NULL;
 }
 
 void *start_login_service() {
+    client_list = create_client_list(MAX_CLIENTS);
     should_accept_connections = 1;
 
     int logsock = socket(AF_INET, SOCK_STREAM, 0);
@@ -30,7 +38,12 @@ void *start_login_service() {
 
     while(should_accept_connections) {
         clsock = accept(logsock, (struct sockaddr*)&claddr, &cllen);
-        // create a client, give it some id
+        p_client_data cldata = (p_client_data)malloc(sizeof(struct client_data));
+        cldata->addr = claddr;
+        cldata->sockfd = clsock;
+
+        // send client to establish connection 
+        
         // wait for the client's requests 
         // (guess that is going to be another thread)
         // satisfy them if valid
@@ -44,26 +57,8 @@ void *start_login_service() {
 
 int main() { // WILL BE MOVED TO MAIN.C
 
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    printf("<main>: socket descriptor: %d\n", sock);
-
-    struct sockaddr_in servaddr;
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(GAME_SERVICE_PORT);
-
-    bind(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
-
-    char buf[BUFSIZE];
-    struct sockaddr_in clientaddr;
-    int clen = sizeof(clientaddr);
-    printf("<main>: server sockaddr %lu\n", (unsigned long)&servaddr);
-    printf("<main>: client sockaddr %lu\n", (unsigned long)&clientaddr);
-
-    /* ssize_t size = recvfrom(sock, buf, BUFSIZE, MSG_DONTWAIT,
-                            (struct sockaddr*)&clientaddr, &clen); */
-
-    close(sock);
+    pthread_create(&login_thread, NULL, start_login_service, NULL);
+    pthread_join(login_thread, NULL);
 
     return 0;
 }

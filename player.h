@@ -1,7 +1,7 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include "headers.h"
+#include "common.h"
 #include "types.h"
 #include <string.h>
 
@@ -22,7 +22,7 @@ struct client_data {
 
 /** type definition for pointers */
 typedef struct player_data* p_player_data;
-typedef struct player_data* p_client_data;
+typedef struct client_data* p_client_data;
 
 /** creates a pointer to a dynamically allocated
  *  array for client_data of size count */

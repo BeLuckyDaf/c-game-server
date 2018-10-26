@@ -12,9 +12,6 @@
 #include <pthread.h>
 #include <time.h>
 
-void error(char* msg, int code) {
-    printf("<error>: %s\n", msg);
-    exit(code);
-}
+void error(char* msg, int code);
 
 #endif
