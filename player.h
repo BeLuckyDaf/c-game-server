@@ -8,8 +8,8 @@
 /** stores player id and position */
 struct player_data {
     uint id;
-    uint x;
-    uint y;
+    int x;
+    int y;
 };
 
 /** stores player data and client address
@@ -26,6 +26,8 @@ typedef struct client_data* p_client_data;
 
 /** creates a pointer to a dynamically allocated
  *  array for client_data of size count */
-p_client_data create_client_list(uint count);
+p_client_data* create_client_list(uint count);
+p_player_data create_player();
+p_player_data create_player_at(int x, int y);
 
 #endif

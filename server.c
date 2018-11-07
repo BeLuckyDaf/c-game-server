@@ -1,6 +1,6 @@
 #include "server.h"
 
-void *establish_client_connection(void* cldata) {
+void *process_client_connection(void *cldata) {
     p_client_data data = (p_client_data)cldata;
     p_message message = create_message(SMSG_VERIFY_CONNECTION, 0, NULL);
     printf("Client connected: %s:%d\n", inet_ntoa(data->addr.sin_addr), ntohs(data->addr.sin_port));
@@ -9,7 +9,9 @@ void *establish_client_connection(void* cldata) {
     while((message = receive_message(data->sockfd))->header.msgcode > 0);
     if (message->header.msgcode == 0) printf("Client verified connection.\n");
     else printf("Connection discarded.\n");
-    
+
+    // other things here
+
     return NULL;
 }
 
@@ -51,25 +53,16 @@ void *start_login_service() {
         cldata->addr = claddr;
         cldata->sockfd = clsock;
 
-        // asking the client to verify connection
-        establish_client_connection(cldata);
-        // wait for the client's requests
-        // (guess that is going to be another thread)
-        // satisfy them if valid
-        // p.s. requests such as put me into game,
-        // send me the map of the game 'x', etc.
-        // if a client disconnects from here
-        // purge them from all games and services
+        // add a thread for a client
+        process_client_connection(cldata);
     }
     return NULL;
 }
 
 int main() { // WILL BE MOVED TO MAIN.C
 
-    //pthread_create(&login_thread, NULL, start_login_service, NULL);
-    //pthread_join(login_thread, NULL);
-
-    start_login_service();
+    pthread_create(&login_thread, NULL, start_login_service, NULL);
+    pthread_join(login_thread, NULL);
 
     return 0;
 }

@@ -17,6 +17,6 @@ p_client_data client_list;
 pthread_t login_thread;
 
 void *start_login_service();
-void *establish_client_connection(void* cldata);
+void *process_client_connection(void *cldata);
 
 #endif

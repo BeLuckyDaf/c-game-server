@@ -19,8 +19,8 @@ struct map {
     struct map_point* points; // must be an array of length width * height
 };
 
-typedef struct map * p_map;
-typedef struct map_point * p_map_point;
+typedef struct map* p_map;
+typedef struct map_point* p_map_point;
 
 p_map create_map(uint width, uint height, p_map_point initial);
 int set_point(struct map* pmap, uint x, uint y, int type);

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "message.h"
+#include "game.h"
 
 #define DEFAULT_PORT 10900
 #define SERVER_PORT 10910
@@ -7,6 +8,7 @@
 int sock;
 struct sockaddr_in servaddr;
 p_message msg;
+char *client_name = "BeLuckyDaf";
 
 int main(int argc, char** argv) {
     if (argc < 3) return 1;
@@ -36,8 +38,19 @@ int main(int argc, char** argv) {
     // ignore all messages not related to verifying connection
     while((msg = receive_message(sock))->header.msgcode != SMSG_VERIFY_CONNECTION);
     printf("code: %d, size: %lu\n", msg->header.msgcode, msg->header.plsize);
-    msg = create_message(BMSG_NEGATIVE, 0, NULL);
+    msg = create_message(BMSG_POSITIVE, 0, NULL);
     send_message(sock, msg);
+
+    msg = create_message(CMSG_SET_NAME, strlen(client_name), client_name);
+    send_message(sock, msg);
+
+    msg = create_message(CMSG_REQUEST_GAME, 0, NULL);
+    send_message(sock, msg);
+
+    int connected = 1;
+    while(connected) {
+        connected = 0;
+    }
 
     // clean up
     close(sock);
