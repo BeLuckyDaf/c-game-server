@@ -1,12 +1,8 @@
-#include "headers.h"
+#include "common.h"
+#include "message.h"
 
 int sock;
 struct sockaddr_in servaddr;
-
-void send_message(char* msg, size_t len) {
-    sendto(sock, msg, len, 0, 
-          (struct sockaddr*)&servaddr, sizeof(servaddr));
-}
 
 int main(int argc, char** argv) {
     if (argc < 3) return 1;
@@ -26,6 +22,10 @@ int main(int argc, char** argv) {
     servaddr.sin_port = htons(10910);
 
     int servsock = connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
+    if (servsock == -1) error("could not connect to server", -1);
+
+    p_message_header msg = receive_header(servsock);
+    printf("code: %d, size: %lu\n", msg->msgcode, msg->plsize);
 
     close(sock);
 

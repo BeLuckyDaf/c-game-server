@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
+#include <string.h>
 
 void error(char* msg, int code);
 
