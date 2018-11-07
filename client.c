@@ -1,32 +1,45 @@
 #include "common.h"
 #include "message.h"
 
+#define DEFAULT_PORT 10900
+#define SERVER_PORT 10910
+
 int sock;
 struct sockaddr_in servaddr;
+p_message msg;
 
 int main(int argc, char** argv) {
     if (argc < 3) return 1;
 
+    // create a socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     printf("socket descriptor: %d\n", sock);
 
+    // initialize address
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(atoi(argv[2]));
+    addr.sin_port = htons(DEFAULT_PORT);
 
+    // bind socket to port
     bind(sock, (struct sockaddr*)&addr, sizeof(addr));
 
+    // define server address
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = inet_addr(argv[1]);
-    servaddr.sin_port = htons(10910);
+    servaddr.sin_port = htons(SERVER_PORT);
 
-    int servsock = connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
-    if (servsock == -1) error("could not connect to server", -1);
+    // connect to server
+    int conn = connect(sock, (struct sockaddr*)&servaddr, sizeof(servaddr));
+    if (conn == -1) error("could not connect to server", -1);
 
-    p_message_header msg = receive_header(servsock);
-    printf("code: %d, size: %lu\n", msg->msgcode, msg->plsize);
+    // ignore all messages not related to verifying connection
+    while((msg = receive_message(sock))->header.msgcode != SMSG_VERIFY_CONNECTION);
+    printf("code: %d, size: %lu\n", msg->header.msgcode, msg->header.plsize);
+    msg = create_message(BMSG_NEGATIVE, 0, NULL);
+    send_message(sock, msg);
 
+    // clean up
     close(sock);
 
     return 0;

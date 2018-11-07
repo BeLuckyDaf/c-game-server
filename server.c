@@ -3,11 +3,12 @@
 void *establish_client_connection(void* cldata) {
     p_client_data data = (p_client_data)cldata;
     p_message message = create_message(SMSG_VERIFY_CONNECTION, 0, NULL);
+    printf("Client connected: %s:%d\n", inet_ntoa(data->addr.sin_addr), ntohs(data->addr.sin_port));
     send_message(data->sockfd, message);
 
-    message = receive_message(data->sockfd);
-    printf("Received message %d %lu\n", message->header.msgcode, message->header.plsize);
-    // verify somehow
+    while((message = receive_message(data->sockfd))->header.msgcode > 0);
+    if (message->header.msgcode == 0) printf("Client verified connection.\n");
+    else printf("Connection discarded.\n");
     
     return NULL;
 }
@@ -38,7 +39,7 @@ void *start_login_service() {
         error("could not start to listen", errno);
     printf("<login service>: listening on port %d\n", LOGIN_SERVICE_PORT);
 
-    // client address
+    // client data
     struct sockaddr_in claddr;
     socklen_t cllen;
     int clsock;
