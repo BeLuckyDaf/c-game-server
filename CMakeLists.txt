@@ -8,26 +8,26 @@ include_directories(.)
 find_package (Threads)
 
 add_executable(server
-        common.c
-        common.h
-        game.c
-        game.h
-        map.c
-        map.h
-        message.c
-        message.h
-        player.c
-        player.h
-        server.c
-        server.h
-        types.h)
+        src/common.c
+        src/common.h
+        src/game.c
+        src/game.h
+        src/map.c
+        src/map.h
+        src/message.c
+        src/message.h
+        src/player.c
+        src/player.h
+        src/server.c
+        src/server.h
+        src/types.h)
 
 add_executable(client
-        common.c
-        common.h
-        message.c
-        message.h
-        client.c
+        src/common.c
+        src/common.h
+        src/message.c
+        src/message.h
+        src/client.c
 )
 
 target_link_libraries (server ${CMAKE_THREAD_LIBS_INIT})
