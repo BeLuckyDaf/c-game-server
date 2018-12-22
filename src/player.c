@@ -1,7 +1,7 @@
 #include "player.h"
 
 p_client_data* create_client_list(uint count) {
-    p_client_data list = (p_client_data)malloc(count * sizeof(p_client_data));
+    p_client_data list = (p_client_data)malloc(count * sizeof(struct client_data));
     memset(list, NULL, count * sizeof(struct client_data));
 }
 

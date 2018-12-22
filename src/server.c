@@ -7,7 +7,8 @@ void *process_client_connection(void *cldata) {
     send_message(data->sockfd, message);
 
     while((message = receive_message(data->sockfd))->header.msgcode > 0);
-    if (message->header.msgcode == 0) printf("Client verified connection.\n");
+    printf("MSGCODE: %d\n");
+    if (message->header.msgcode == BMSG_POSITIVE) printf("Client verified connection.\n");
     else printf("Connection discarded.\n");
 
     // other things here
@@ -54,7 +55,9 @@ void *start_login_service() {
         cldata->sockfd = clsock;
 
         // add a thread for a client
-        process_client_connection(cldata);
+        pthread_t tid;
+        pthread_create(&tid, NULL, process_client_connection, (void*)cldata);
+        //process_client_connection(cldata);
     }
     return NULL;
 }
