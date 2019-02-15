@@ -13,6 +13,9 @@
 #include <time.h>
 #include <string.h>
 
+// decide whether you really need this or not
+#define N_ALLOC(X,N) (((X)*)malloc((N)*sizeof(X))) 
+
 void error(char* msg, int code);
 
 #endif

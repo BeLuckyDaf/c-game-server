@@ -5,7 +5,7 @@
 #include "map.h"
 
 struct game_instance {
-    p_client_data players;
+    p_client_list players;
     p_map map;
 };
 

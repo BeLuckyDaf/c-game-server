@@ -1,6 +1,7 @@
 #include "common.h"
 #include "message.h"
 #include "game.h"
+#include "msgcodes.h"
 
 #define DEFAULT_PORT 10900
 #define SERVER_PORT 10910
@@ -11,7 +12,7 @@ p_message msg;
 char *client_name = "BeLuckyDaf";
 
 int main(int argc, char** argv) {
-    if (argc < 3) return 1;
+    if (argc < 2) return 1;
 
     // create a socket
     sock = socket(AF_INET, SOCK_STREAM, 0);

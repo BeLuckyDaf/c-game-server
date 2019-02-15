@@ -12,6 +12,7 @@ void *process_client_connection(void *cldata) {
     else printf("Connection discarded.\n");
 
     // other things here
+    close(data->sockfd);
 
     return NULL;
 }

@@ -4,6 +4,7 @@
 #include "common.h"
 #include "player.h"
 #include "message.h"
+#include "msgcodes.h"
 
 #define BUFSIZE 100
 #define LOGIN_SERVICE_PORT 10910
