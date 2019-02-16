@@ -8,8 +8,10 @@ void *process_client_connection(void *cldata) {
 
     while((message = receive_message(data->sockfd))->header.msgcode > 0);
     printf("MSGCODE: %d\n");
-    if (message->header.msgcode == BMSG_POSITIVE) printf("Client verified connection.\n");
-    else printf("Connection discarded.\n");
+    if (message->header.msgcode == BMSG_POSITIVE) log("Client verified connection.");
+    else log("Connection discarded.");
+
+    printf("Client sockfd: %d.\n", data->sockfd);
 
     // other things here
     close(data->sockfd);
@@ -17,56 +19,68 @@ void *process_client_connection(void *cldata) {
     return NULL;
 }
 
-void *start_login_service() {
-    // initialization
-    client_list = create_client_list(MAX_CLIENTS);
-    should_accept_connections = 1;
-
-    // creating a login socket
-    int logsock = socket(AF_INET, SOCK_STREAM, 0);
-    if (logsock == -1) error("could not create socket", errno);
-    printf("<login service>: created socket %d\n", logsock);
-
-    // address for login socket
-    struct sockaddr_in logaddr;
-    logaddr.sin_addr.s_addr = INADDR_ANY;
-    logaddr.sin_family = AF_INET;
-    logaddr.sin_port = htons(LOGIN_SERVICE_PORT);
-
-    // binding socket to port
-    if (bind(logsock, (struct sockaddr*)&logaddr, sizeof(logaddr)) == -1)
-        error("could not bind to port", errno);
-    printf("<login service>: socket bound to local address\n");
-
-    // starting listening for connections
-    if (listen(logsock, MAX_PENDING_CONNECTIONS) == -1)
-        error("could not start to listen", errno);
-    printf("<login service>: listening on port %d\n", LOGIN_SERVICE_PORT);
+void *accept_connections(void *svinfo) {
+    p_server_info info = (p_server_info)svinfo;
+    int aptcon = 1;
+    info->aptcon = &aptcon;
 
     // client data
     struct sockaddr_in claddr;
-    socklen_t cllen;
+    socklen_t cllen = sizeof(struct sockaddr_in);
     int clsock;
+    p_client_data cldata;
 
-    // login loop
-    while(should_accept_connections) {
-        clsock = accept(logsock, (struct sockaddr*)&claddr, &cllen);
-        p_client_data cldata = (p_client_data)malloc(sizeof(struct client_data));
+    // accept loop
+    while(*info->aptcon) {
+        cldata = (p_client_data)malloc(sizeof(struct client_data));
+        clsock = accept(info->sockfd, (struct sockaddr*)&claddr, &cllen);
         cldata->addr = claddr;
         cldata->sockfd = clsock;
 
         // add a thread for a client
         pthread_t tid;
-        pthread_create(&tid, NULL, process_client_connection, (void*)cldata);
-        //process_client_connection(cldata);
+        pthread_create(&tid, NULL, info->conn_handler, (void*)cldata);
     }
-    return NULL;
+}
+
+p_server_info create_tcp_server(char* alias, unsigned short port, void *(*conn_handler)(void*)) {
+    // creating a login socket
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) error("could not create socket", errno);
+    printf("<%s>: created socket %d\n", alias, sock);
+
+    // address for login socket
+    struct sockaddr_in addr;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+
+    // binding socket to port
+    if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) == -1)
+        error("could not bind to port", errno);
+    printf("<%s>: socket bound to local address\n", alias);
+
+    // starting listening for connections
+    if (listen(sock, MAX_PENDING_CONNECTIONS) == -1)
+        error("could not start to listen", errno);
+    printf("<%s>: listening on port %d\n", alias, port);
+
+    // create info structure
+    p_server_info svinfo = (p_server_info)malloc(sizeof(struct server_info));
+    svinfo->sockfd = sock;
+    svinfo->conn_handler = conn_handler;
+    svinfo->aptcon = NULL;
+
+    // accept connections in a different thread
+    pthread_create(&svinfo->tid, NULL, accept_connections, (void*)svinfo);
+
+    return svinfo;
 }
 
 int main() { // WILL BE MOVED TO MAIN.C
 
-    pthread_create(&login_thread, NULL, start_login_service, NULL);
-    pthread_join(login_thread, NULL);
+    p_server_info svinfo = create_tcp_server("login", LOGIN_SERVICE_PORT, process_client_connection);
+    pthread_join(svinfo->tid, NULL);
 
     return 0;
 }

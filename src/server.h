@@ -12,6 +12,15 @@
 #define MAX_PENDING_CONNECTIONS 3
 #define MAX_CLIENTS 5
 
+struct server_info {
+    int sockfd;
+    int *aptcon;
+    pthread_t tid;
+    void *(*conn_handler)(void*);
+};
+
+typedef struct server_info* p_server_info;
+
 int should_accept_connections;
 p_client_data client_list;
 

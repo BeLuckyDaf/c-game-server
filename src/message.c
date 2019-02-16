@@ -14,7 +14,10 @@ int try_read(int sockfd, void *buf, size_t len) {
     ssize_t bytes_read;
     while(total_bytes < len) {
         bytes_read = read(sockfd, (char*)buf + total_bytes, len-total_bytes);
-        if (bytes_read == -1) error("error reading socket", -3);
+        if (bytes_read == -1) {
+            log("error reading socket");
+            return -1;
+        }
         total_bytes += bytes_read;
     }
 
@@ -26,7 +29,10 @@ int try_write(int sockfd, void *buf, size_t len) {
     ssize_t bytes_sent;
     while(total_bytes < len) {
         bytes_sent = write(sockfd, (char*)buf + total_bytes, len-total_bytes);
-        if (bytes_sent == -1) error("error writing to socket", -4);
+        if (bytes_sent == -1) {
+            log("error writing to socket");
+            return -1;
+        }
         total_bytes += bytes_sent;
     }
 
@@ -60,7 +66,7 @@ p_message_header receive_header(int sockfd) {
     return NULL;
 }
 
-p_message receive_message_body(int sockfd, p_message_header header) {
+p_message receive_payload(int sockfd, p_message_header header) {
     p_message message = (p_message)malloc(sizeof(struct message));
     memset(message, 0, sizeof(struct message));
     message->header = *header;
@@ -71,5 +77,5 @@ p_message receive_message_body(int sockfd, p_message_header header) {
 
 p_message receive_message(int sockfd) {
     p_message_header header = receive_header(sockfd);
-    return receive_message_body(sockfd, header);
+    return receive_payload(sockfd, header);
 }

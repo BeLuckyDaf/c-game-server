@@ -17,5 +17,6 @@
 #define N_ALLOC(X,N) (((X)*)malloc((N)*sizeof(X))) 
 
 void error(char* msg, int code);
+void log(char* msg);
 
 #endif

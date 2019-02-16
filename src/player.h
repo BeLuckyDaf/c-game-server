@@ -17,15 +17,15 @@ struct player_data {
 struct client_data {
     int sockfd;
     struct sockaddr_in addr;
-    struct player_data data;
+    //struct player_data data;
 };
 
 /** type definition for pointers */
 typedef struct player_data* p_player_data;
 typedef struct client_data* p_client_data;
 /* making it simpler to assign list data */
-typedef struct p_client_data* p_client_list;
-typedef struct p_player_data* p_player_list;
+typedef p_client_data* p_client_list;
+typedef p_player_data* p_player_list;
 
 /** creates a pointer to a dynamically allocated
  *  array for client_data of size count */

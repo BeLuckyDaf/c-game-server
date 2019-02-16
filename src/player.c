@@ -1,14 +1,14 @@
 #include "player.h"
 
 p_client_list create_client_list(uint count) {
-    p_client_data list = (p_client_data)malloc(count * sizeof(struct client_data));
+    p_client_list list = (p_client_list)malloc(count * sizeof(p_client_data));
     memset(list, NULL, count * sizeof(struct client_data));
 }
 
-int add_client_to_list(p_client_data* list, size_t size, p_client_data data) {
+int add_client_to_list(p_client_list list, uint lsize, p_client_data data) {
     int _iter = -1;
 
-    while(list[++_iter] != NULL) if (_iter == size-1) return -1;
+    while(list[++_iter] != NULL) if (_iter == lsize-1) return -1;
     list[_iter] = data;
 
     return _iter;
