@@ -12,20 +12,17 @@ p_message msg;
 char *client_name = "BeLuckyDaf";
 
 int main(int argc, char** argv) {
-    if (argc < 3) return 1;
+    if (argc < 2) return 1;
 
     // create a socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     printf("socket descriptor: %d\n", sock);
 
     // initialize address
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(atoi(argv[2]));
-
-    // bind socket to port
-    bind(sock, (struct sockaddr*)&addr, sizeof(addr));
+    //struct sockaddr_in addr;
+    //addr.sin_family = AF_INET;
+    //addr.sin_addr.s_addr = INADDR_ANY;
+    //addr.sin_port = htons(atoi(argv[2]));
 
     // define server address
     servaddr.sin_family = AF_INET;
@@ -44,16 +41,14 @@ int main(int argc, char** argv) {
 
     sleep(1);
 
-    msg = create_message(CMSG_SET_NAME, strlen(client_name), client_name);
+    //msg = create_message(CMSG_SET_NAME, strlen(client_name), client_name);
+    msg = create_message(CMSG_SET_NAME, 0, NULL);
     send_message(sock, msg);
 
     msg = create_message(CMSG_REQUEST_GAME, 0, NULL);
     send_message(sock, msg);
 
-    int connected = 1;
-    while(connected) {
-        connected = 0;
-    }
+    while(1);
 
     // clean up
     close(sock);

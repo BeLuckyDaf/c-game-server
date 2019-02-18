@@ -14,11 +14,16 @@ int try_read(int sockfd, void *buf, size_t len) {
     ssize_t bytes_read;
     while(total_bytes < len) {
         bytes_read = read(sockfd, (char*)buf + total_bytes, len-total_bytes);
-        if (bytes_read == -1) {
-            log("error reading socket");
-            return -1;
+        switch (bytes_read) {
+            case -1:
+                log("error reading socket");
+                return -1;
+            case 0:
+                log("host closed connection (met EOF)");
+                return -2;
+            default:
+                total_bytes += bytes_read;
         }
-        total_bytes += bytes_read;
     }
 
     return 0;
@@ -29,11 +34,16 @@ int try_write(int sockfd, void *buf, size_t len) {
     ssize_t bytes_sent;
     while(total_bytes < len) {
         bytes_sent = write(sockfd, (char*)buf + total_bytes, len-total_bytes);
-        if (bytes_sent == -1) {
-            log("error writing to socket");
-            return -1;
+        switch (bytes_sent) {
+            case -1:
+                log("error writing to socket");
+                return -1;
+            case 0:
+                log("host closed connection (met EOF)");
+                return -2;
+            default:
+                total_bytes += bytes_sent;
         }
-        total_bytes += bytes_sent;
     }
 
     return 0;
@@ -46,7 +56,7 @@ int send_header(int sockfd, p_message_header header) {
 }
 
 int send_payload(int sockfd, void* payload, size_t len) {
-    if (len == 0 || try_write(sockfd, payload, sizeof(len)) == 0)
+    if (len == 0 || try_write(sockfd, payload, len) == 0)
         return 0;
     return -1;
 }
@@ -77,5 +87,6 @@ p_message receive_payload(int sockfd, p_message_header header) {
 
 p_message receive_message(int sockfd) {
     p_message_header header = receive_header(sockfd);
+    if (header == NULL) return NULL;
     return receive_payload(sockfd, header);
 }

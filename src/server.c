@@ -7,13 +7,21 @@ void *process_client_connection(void *cldata) {
     send_message(data->sockfd, message);
 
     while((message = receive_message(data->sockfd))->header.msgcode > 0);
-    printf("MSGCODE: %d\n");
+    printf("MSGCODE: %d\n", message->header.msgcode);
     if (message->header.msgcode == BMSG_POSITIVE) log("Client verified connection.");
     else log("Connection discarded.");
 
     printf("Client sockfd: %d.\n", data->sockfd);
 
+    close(data->sockfd);
+    return NULL;
+
     // other things here
+    while((message = receive_message(data->sockfd)) != NULL) {
+        printf("MSGCODE: %d\n", message->header.msgcode);
+        message = create_message(BMSG_POSITIVE, 0, NULL);
+    }
+    log("client disconnected");
     close(data->sockfd);
 
     return NULL;
